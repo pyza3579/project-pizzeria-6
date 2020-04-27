@@ -58,6 +58,7 @@
       thisProduct.data = data;
       thisProduct.renderInMenu();//jak przeczytac te linie?
       thisProduct.initAccordion();// potrzebne tu jest do wywolania metofy thisProduct. Dlaczego?
+      thisProduct.getElements();
       thisProduct.initOrderForm();
       thisProduct.processOrder();
     }
@@ -74,7 +75,7 @@
       /* add element to menu */
       menuContainer.appendChild(thisProduct.element); //do elementu menuContainer dodaj element stalej this Product?
     }
-    getElements(){ //te wartosci w ogole nie sa czytane przez inne metody. Dlaczego i co jest zle zadeklarowa
+    getElements(){
       const thisProduct = this;
 
       thisProduct.accordionTrigger = thisProduct.element.querySelector(select.menuProduct.clickable);
@@ -86,7 +87,7 @@
     initAccordion(){
       const thisProduct = this;
       /* find the clickable trigger (the element that should react to clicking) */
-      const clickableElement = thisProduct.element.querySelector(select.menuProduct.clickable); //nie mozna teraz zastapic thisProduct.accordionTrigger. Cos jest nie tak?
+      const clickableElement = thisProduct.accordionTrigger = thisProduct.element.querySelector(select.menuProduct.clickable);
       /* START: click event listener to trigger */
       clickableElement.addEventListener('click', function(){
         /* prevent default action for event */
@@ -110,23 +111,23 @@
     }
 
     initOrderForm() { //odpowiedzialna za dodanie listenerów eventów do formularza, jego kontrolek, oraz guzika dodania do koszyka.
-        const thisProduct = this;
-        console.log('initOrderForm');
-        thisProduct.form.addEventListener('submit', function(event){
+      const thisProduct = this;
+      console.log('initOrderForm');
+      thisProduct.form.addEventListener('submit', function(event){
         event.preventDefault();
         thisProduct.processOrder();
-        });
+      });
 
-        for(let input of thisProduct.formInputs){
+      for(let input of thisProduct.formInputs){
         input.addEventListener('change', function(){
-        thisProduct.processOrder();
+          thisProduct.processOrder();
         });
-        }
+      }
 
-        thisProduct.cartButton.addEventListener('click', function(event){
+      thisProduct.cartButton.addEventListener('click', function(event){
         event.preventDefault();
         thisProduct.processOrder();
-        });
+      });
     }
     processOrder() {
       const thisProduct = this;
