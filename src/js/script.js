@@ -52,7 +52,7 @@
     menuProduct: Handlebars.compile(document.querySelector(select.templateOf.menuProduct).innerHTML),
   };
   class Product{
-    constructor(id, data){
+    constructor(id, data) {
       const thisProduct = this;
       thisProduct.id = id; //wlasciwosc id dodana do stalej this = id? czy poprostu zapis stalej w pr.obiektowym?
       thisProduct.data = data;
@@ -62,7 +62,7 @@
       thisProduct.initOrderForm();
       thisProduct.processOrder();
     }
-    renderInMenu(){
+    renderInMenu() {
       const thisProduct = this;
 
       /* generate HTML based on template */
@@ -75,7 +75,7 @@
       /* add element to menu */
       menuContainer.appendChild(thisProduct.element); //do elementu menuContainer dodaj element stalej this Product?
     }
-    getElements(){
+    getElements() {
       const thisProduct = this;
 
       thisProduct.accordionTrigger = thisProduct.element.querySelector(select.menuProduct.clickable);
@@ -84,12 +84,12 @@
       thisProduct.cartButton = thisProduct.element.querySelector(select.menuProduct.cartButton);
       thisProduct.priceElem = thisProduct.element.querySelector(select.menuProduct.priceElem);
     }
-    initAccordion(){
+    initAccordion() {
       const thisProduct = this;
       /* find the clickable trigger (the element that should react to clicking) */
       const clickableElement = thisProduct.accordionTrigger = thisProduct.element.querySelector(select.menuProduct.clickable);
       /* START: click event listener to trigger */
-      clickableElement.addEventListener('click', function(){
+      clickableElement.addEventListener('click', function() {
         /* prevent default action for event */
         event.preventDefault();
         /* toggle active class on element of thisProduct */
@@ -97,7 +97,7 @@
         /* find all active products */
         const activeProducts = document.querySelectorAll('article.active');
         /* START LOOP: for each active product */
-        for (let activeProduct of activeProducts){
+        for (let activeProduct of activeProducts) {
           /* START: if the active product isn't the element of thisProduct */
           if (activeProduct != thisProduct.element) {
           /* remove class active for the active product */
@@ -113,18 +113,18 @@
     initOrderForm() { //odpowiedzialna za dodanie listenerów eventów do formularza, jego kontrolek, oraz guzika dodania do koszyka.
       const thisProduct = this;
       console.log('initOrderForm');
-      thisProduct.form.addEventListener('submit', function(event){
+      thisProduct.form.addEventListener('submit', function(event) {
         event.preventDefault();
         thisProduct.processOrder();
       });
 
-      for(let input of thisProduct.formInputs){
+      for(let input of thisProduct.formInputs) {
         input.addEventListener('change', function(){
           thisProduct.processOrder();
         });
       }
 
-      thisProduct.cartButton.addEventListener('click', function(event){
+      thisProduct.cartButton.addEventListener('click', function(event) {
         event.preventDefault();
         thisProduct.processOrder();
       });
@@ -134,21 +134,46 @@
       console.log('processOrder');
       const formData = utils.serializeFormToObject(thisProduct.form);
       console.log('formData', formData);
-    }
 
+      let price = thisProduct.data.price;
+      console.log('price', price);
+
+      // Find all params // //dlczego nie zaczynamy od tego?? i nie zadeklarujemy canst params = thisProduct.data.params?
+
+      // START LOOP: For each param in params //
+      for(let paramId in thisProduct.data.params) {
+        const param = thisProduct.data.params[paramId]; //dlczego [paramId?]
+        // START LOOP: for each value of the option of param
+        for(let optionId in param.options) {
+          const option = param.options[optionId]; //
+          const optionSelected = formData.hasOwnProperty(paramId) && formData[paramId].indexOf(optionId) > -1;
+          // if option is selected and option is not default  add the price of the option to the priceElem
+          if (optionSelected && !option.default) {
+            price = price + option.price; //
+          } else if (!optionSelected && option.default) {
+            // if option is not selected and option is default the option is odjac from price
+            price = price - option.price;
+          }
+          //END LOOP: for each option
+        }
+      //END LOOP for each param
+      }
+      //set the contents of thisProduct.price Elem to be value of variable price
+      thisProduct.priceElem.innerHTML = price; //jak na to wpasc?
+    }
   }
   const app = {
-    initMenu(){
+    initMenu() {
       const thisApp = this;
-      for(let productData in thisApp.data.products){ //co to za zabior elementow? this.App.data.ptroducts?
+      for(let productData in thisApp.data.products) {
         new Product(productData, thisApp.data.products[productData]);
       }
     },
-    initData: function(){
+    initData: function() {
       const thisApp = this;
       thisApp.data = dataSource;
     },
-    init: function(){
+    init: function() {
       const thisApp = this;
       console.log('*** App starting ***');
       console.log('thisApp:', thisApp);
