@@ -139,10 +139,10 @@
       const thisProduct = this;
       //console.log('processOrder');
       const formData = utils.serializeFormToObject(thisProduct.form);
-    //  console.log('formData', formData);
+      //console.log('formData', formData);
 
       let price = thisProduct.data.price;
-    //  console.log('price', price);
+      //console.log('price', price);
 
       /* START LOOP: For each paramId in thisProduct.data.params */
       for(let paramId in thisProduct.data.params) {
@@ -202,6 +202,7 @@
     constructor(element) {
       const thisWidget = this;
       thisWidget.getElements(element);
+      thisWidget.value = settings.amountWidget.defaultValue;
       thisWidget.setValue(thisWidget.input.value);
       thisWidget.initActions();
       console.log('AmountWidget:', thisWidget);
@@ -218,17 +219,19 @@
     }
     setValue(value) { //skad sie value tutaj bierze?
       const thisWidget = this;
-
       const newValue = parseInt(value);
 
       /* TO DO: Add validation*/
-      thisWidget.value = newValue;
-      thisWidget.announce();
+
+      if (newValue != thisWidget.value && newValue >= settings.amountWidget.defaultMin && newValue <= settings.amountWidget.defaultMax) {
+        thisWidget.value = newValue;
+        thisWidget.announce();
+      }
       thisWidget.input.value = thisWidget.value;
     }
     initActions() {
       const thisWidget = this;
-        thisWidget.input.addEventListener('change', function() {
+      thisWidget.input.addEventListener('change', function() {
         thisWidget.setValue(thisWidget.input.value);
       });
       thisWidget.linkDecrease.addEventListener('click', function() {
