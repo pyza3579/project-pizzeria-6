@@ -54,10 +54,10 @@
   class Product{
     constructor(id, data) {
       const thisProduct = this;
-      thisProduct.id = id; //wlasciwosc id dodana do stalej this = id? czy poprostu zapis stalej w pr.obiektowym?
+      thisProduct.id = id;
       thisProduct.data = data;
-      thisProduct.renderInMenu();//jak przeczytac te linie?
-      thisProduct.initAccordion();// potrzebne tu jest do wywolania metofy thisProduct. Dlaczego?
+      thisProduct.renderInMenu();
+      thisProduct.initAccordion();
       thisProduct.getElements();
       thisProduct.initOrderForm();
       thisProduct.processOrder();
@@ -66,10 +66,10 @@
       const thisProduct = this;
 
       /* generate HTML based on template */
-      const generatedHTML = templates.menuProduct(thisProduct.data);//dlaczego nie uzylismy jako argumentu fata?
+      const generatedHTML = templates.menuProduct(thisProduct.data);
 
       /* create element using utils.createElementFromHTML */
-      thisProduct.element = utils.createDOMFromHTML(generatedHTML);//element DOM zapisujemy jakos wlasciwosc instancji? no niby gdzie?
+      thisProduct.element = utils.createDOMFromHTML(generatedHTML);
       /* find menu container */
       const menuContainer = document.querySelector(select.containerOf.menu);
       /* add element to menu */
@@ -83,6 +83,7 @@
       thisProduct.formInputs = thisProduct.form.querySelectorAll(select.all.formInputs);
       thisProduct.cartButton = thisProduct.element.querySelector(select.menuProduct.cartButton);
       thisProduct.priceElem = thisProduct.element.querySelector(select.menuProduct.priceElem);
+      thisProduct.imageWrapper = thisProduct.element.querySelector(select.menuProduct.imageWrapper);
     }
     initAccordion() {
       const thisProduct = this;
@@ -93,7 +94,7 @@
         /* prevent default action for event */
         event.preventDefault();
         /* toggle active class on element of thisProduct */
-        thisProduct.element.classList.toggle('active'); //dlaczego z thisProduct.element ?
+        thisProduct.element.classList.toggle('active');
         /* find all active products */
         const activeProducts = document.querySelectorAll('article.active');
         /* START LOOP: for each active product */
@@ -110,7 +111,7 @@
       });
     }
 
-    initOrderForm() { //odpowiedzialna za dodanie listenerów eventów do formularza, jego kontrolek, oraz guzika dodania do koszyka.
+    initOrderForm() {
       const thisProduct = this;
       console.log('initOrderForm');
       thisProduct.form.addEventListener('submit', function(event) {
@@ -138,25 +139,44 @@
       let price = thisProduct.data.price;
       console.log('price', price);
 
-      // Find all params // //dlczego nie zaczynamy od tego?? i nie zadeklarujemy canst params = thisProduct.data.params?
-
-      // START LOOP: For each param in params //
+      /* START LOOP: For each paramId in thisProduct.data.params */
       for(let paramId in thisProduct.data.params) {
-        const param = thisProduct.data.params[paramId]; //dlczego [paramId?]
-        // START LOOP: for each value of the option of param
+        /* Save the element in thisProduct.data.params with key paramId as const param*/
+        const param = thisProduct.data.params[paramId]; //dlczego [paramId?] i dlaczego zapisujemy to tutaj
+        /* START LOOP: for each optionId in param.options*/
         for(let optionId in param.options) {
+          /* save the element in param.options with key optionId as const option*/
           const option = param.options[optionId]; //
+          /*Start if: if option is selected and option is not default*/
+          /*add price of option to variable price*/
           const optionSelected = formData.hasOwnProperty(paramId) && formData[paramId].indexOf(optionId) > -1;
-          // if option is selected and option is not default  add the price of the option to the priceElem
           if (optionSelected && !option.default) {
-            price = price + option.price; //
-          } else if (!optionSelected && option.default) {
-            // if option is not selected and option is default the option is odjac from price
-            price = price - option.price;
+            price = price + option.price;
+            /*End if option is selected and option is not default*/
           }
-          //END LOOP: for each option
+          /*start else if option is not selected and option is default*/
+          /*deduct price of option from price*/
+          else if (!optionSelected && option.default) {
+            price = price - option.price;
+            /*End else if*/
+          }
+          /*IF option is selected add class classNames.menuProduct.imageVisible*/
+          const images = thisProduct.imageWrapper.querySelectorAll('.' + paramId + '-' + optionId);
+          /*  if else checking if the option is been selcted */
+          if (optionSelected) {
+            for(let image of images) {
+              image.classList.add(classNames.menuProduct.imageVisible);
+            }
+          }
+          else {
+            for(let image of images) {
+              image.classList.remove(classNames.menuProduct.imageVisible);
+            }
+          }
+          /*ELSE option isn't selected remove class classNames.menuProduct.imageVisible*/
+        /*END LOOP for optionId*/
         }
-      //END LOOP for each param
+      /*END LOOP for paramId*/
       }
       //set the contents of thisProduct.price Elem to be value of variable price
       thisProduct.priceElem.innerHTML = price; //jak na to wpasc?
