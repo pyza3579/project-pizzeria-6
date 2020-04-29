@@ -63,7 +63,7 @@
     cart: {
       wrapperActive: 'active',
     },
-// CODE ADDED END
+    // CODE ADDED END
   };
 
   const settings = {
@@ -274,14 +274,36 @@
         thisWidget.setValue(thisWidget.value + 1);
       });
     }
-    announce(){
+    announce() {
       const thisWidget = this;
 
       const event = new Event('updated');//nie rozumiem, co jest tutaj czym
       thisWidget.element.dispatchEvent(event);
     }
   }
+  class Cart{
+    constructor(element) { //konstruktor wykona funkcje na kazdym elemencie,tak?
+      const thisCart = this;
 
+      thisCart.products = [];
+
+      thisCart.getElements(element);
+      thisCart.initActions();
+      console.log('new Cart', thisCart);
+    }
+    getElements(element) {
+      const thisCart = this;
+      thisCart.dom = {}; //wszystkie elem. DOM, wyszukane w komponencie koszyka
+      thisCart.dom.wrapper = element;
+      thisCart.dom.toggleTrigger = thisCart.dom.wrapper.querySelector(select.cart.toggleTrigger);
+    }
+    initActions() {
+      const thisCart = this;
+      thisCart.dom.toggleTrigger.addEventListener('click', function() {
+        thisCart.dom.wrapper.classList.toggle(classNames.cart.wrapperActive);
+      });
+    }
+  }
   const app = {
     initMenu() {
       const thisApp = this;
@@ -303,8 +325,15 @@
       thisApp.initData();
       thisApp.initMenu();
     },
+    initCart: function(){
+      const thisApp = this;
+
+      const cartElem = document.querySelector(select.containerOf.cart);
+      thisApp.cart = new Cart(cartElem); //thisApp.cart jest instatcja a new Car jest klasa?
+    },
   };
 
   app.init();
+  app.initCart();
 
 }
