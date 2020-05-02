@@ -165,6 +165,7 @@
       thisProduct.cartButton.addEventListener('click', function(event) {
         event.preventDefault();
         thisProduct.processOrder();
+        thisProduct.addToCart();
       });
     }
     processOrder() {
@@ -172,7 +173,7 @@
       //console.log('processOrder');
       const formData = utils.serializeFormToObject(thisProduct.form);
       //console.log('formData', formData);
-
+      thisProduct.params = {};
       let price = thisProduct.data.price;
       //console.log('price', price);
 
@@ -201,6 +202,13 @@
           const images = thisProduct.imageWrapper.querySelectorAll('.' + paramId + '-' + optionId);
           /*  if else checking if the option is been selcted */
           if (optionSelected) {
+            if(!thisProduct.params[paramId]) {
+              thisProduct.params[paramId] = {
+                label: param.label,
+                options: {},
+              };
+            }
+            thisProduct.params[paramId].options[optionId] = option.label;
             for(let image of images) {
               image.classList.add(classNames.menuProduct.imageVisible);
             }
@@ -216,9 +224,12 @@
       /*END LOOP for paramId*/
       }
       /*multiply price by amount*/
-      price *= thisProduct.amountWidget.value;
+      thisProduct.priceSingle = price;
+      thisProduct.price = thisProduct.priceSingle * thisProduct.amountWidget.value;
+
       /*set the contents of thisProduct.price Elem to be value of variable price*/
-      thisProduct.priceElem.innerHTML = price; //jak na to wpasc?
+      thisProduct.priceElem.innerHTML = thisProduct.price; //jak na to wpasc?
+      console.log('thisProduct.params', thisProduct.params);
     }
 
     initAmountWidget(){
@@ -229,6 +240,14 @@
         //console.log('thisProduct.processOrder',thisProduct.processOrder);
       });
     }
+    addToCart() {
+      const thisProduct = this;
+      thisProduct.name = thisProduct.data.name;
+      thisProduct.amount = thisProduct.amountWidget.value;
+      app.cart.add(thisProduct); //nie rozumiem tego, skad sie wzielo app.cart? do metody app.cart z funkcji   initCart: function() wrzucam .add(menuProduct)??, ktore jest wykonywane na thisProduct i produkt laduje w koszyku? No spoko, a jak man  to zdrowy czlowiek wpasc?
+      //Wyslanie produktu do koszyka musimy przerobic od samego poczatku
+    }
+
   }
   class AmountWidget {
     constructor(element) {
@@ -296,12 +315,24 @@
       thisCart.dom = {}; //wszystkie elem. DOM, wyszukane w komponencie koszyka
       thisCart.dom.wrapper = element;
       thisCart.dom.toggleTrigger = thisCart.dom.wrapper.querySelector(select.cart.toggleTrigger);
+      thisCart.dom.productList = thisCart.dom.wrapper.querySelector(select.cart.productList);
     }
     initActions() {
       const thisCart = this;
       thisCart.dom.toggleTrigger.addEventListener('click', function() {
         thisCart.dom.wrapper.classList.toggle(classNames.cart.wrapperActive);
       });
+    }
+    add(menuProduct) {
+      const thisCart = this;
+      console.log('adding product', menuProduct);
+      /* generate HTML based on template */
+      const generatedHTML = templates.cartProduct(menuProduct);
+
+      /* create element using utils.createElementFromHTML */
+      const generatedDom = utils.createDOMFromHTML(generatedHTML);
+
+      thisCart.dom.productList.appendChild(generatedDom);
     }
   }
   const app = {
@@ -329,7 +360,7 @@
       const thisApp = this;
 
       const cartElem = document.querySelector(select.containerOf.cart);
-      thisApp.cart = new Cart(cartElem); //thisApp.cart jest instatcja a new Car jest klasa?
+      thisApp.cart = new Cart(cartElem); //thisApp.cart jest instatcja a new Cart jest klasa?
     },
   };
 
