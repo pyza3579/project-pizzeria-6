@@ -75,6 +75,11 @@
     cart: {
       defaultDeliveryFee: 20,
     },
+    db: {
+      url: '//localhost:3131',
+      product: 'product',
+      order: 'order',
+    },
   };
 
   const templates = {
@@ -324,6 +329,12 @@
       for(let key of thisCart.renderTotalsKeys){
         thisCart.dom[key] = thisCart.dom.wrapper.querySelectorAll(select.cart[key]);
       }
+      thisCart.dom.form = thisCart.dom.wrapper.querySelector(select.cart.form);
+      console.log('thisCart.dom.form', thisCart.dom.form);
+      thisCart.dom.phone = thisCart.dom.wrapper.querySelector(select.cart.phone);
+      thisCart.dom.address = thisCart.dom.wrapper.querySelector(select.cart.address);//dlaczego nie sa zapiane jak thisCart.renderTotalsKeys? Bo to input i nie ma wartosci podanej?
+
+
     }
     initActions() {
       const thisCart = this;
@@ -336,6 +347,42 @@
       thisCart.dom.productList.addEventListener('remove', function() {
         thisCart.remove(event.detail.cartProduct);
       });
+      thisCart.dom.form.addEventListener('submit', function() {
+        event.preventDefault();
+        thisCart.sendOrder();
+      });
+    }
+    sendOrder() {
+      const thisCart = this;
+      const url = settings.db.url + '/' + settings.db.order;
+
+      const payload = {
+        address: thisCart.dom.address.value,//tvalue, bo input?
+        phone: thisCart.dom.phone.value, 
+        totalNumber: thisCart.totalNumber, //dlaczego one sa tylko tak zapisane? a nie z select.cart.totalNumber?
+        subtotalPrice: thisCart.subtotalPrice,
+        deliveryFee: thisCart.deliveryFee,
+        totalPrice: thisCart.totalPrice,
+        products: [],
+      };
+      for (let oneProduct of thisCart.products) {
+        oneProduct.getData();
+        payload.products.push(oneProduct);
+      }
+      const options = {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(payload),
+      };
+      fetch(url, options)
+        .then(function(response){
+          return response.json();
+        })
+        .then(function(parsedResponse){
+          console.log('parsedResponse', parsedResponse);
+        });
     }
     add(menuProduct) {
       const thisCart = this;
@@ -437,19 +484,41 @@
         thisCartProduct.remove();
 
       });
-
+    }
+    getData() {
+      const thisCartProduct = this;
+      return thisCartProduct.id,
+      thisCartProduct.amount,
+      thisCartProduct.price,
+      thisCartProduct.priceSingle,
+      thisCartProduct.params;
     }
   }
   const app = {
     initMenu() {
       const thisApp = this;
       for(let productData in thisApp.data.products) {
-        new Product(productData, thisApp.data.products[productData]);
+        new Product(thisApp.data.products[productData].id, thisApp.data.products[productData]);
       }
     },
     initData: function() {
       const thisApp = this;
-      thisApp.data = dataSource;
+      thisApp.data = {};
+      const url = settings.db.url + '/' + settings.db.product;
+      fetch(url)
+        .then(function(rawResponse){
+          return rawResponse.json();
+        })
+        .then(function(parsedResponse){
+          console.log('parsedResponse', parsedResponse);
+
+          /*save parsedResponse as thisApp.data.products*/
+          thisApp.data.products = parsedResponse;
+          /* execute initMenu method*/
+          thisApp.initMenu();
+        });
+
+      console.log('thisApp.data', JSON.stringify(thisApp.data));
     },
     init: function() {
       const thisApp = this;
@@ -459,7 +528,7 @@
       //console.log('settings:', settings);
       //console.log('templates:', templates);
       thisApp.initData();
-      thisApp.initMenu();
+
     },
     initCart: function(){
       const thisApp = this;
