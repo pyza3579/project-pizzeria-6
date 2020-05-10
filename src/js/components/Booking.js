@@ -1,5 +1,6 @@
 import {select, templates} from '../settings.js';
 import AmountWidget from './AmountWidget.js';
+import DatePicker from './DatePicker.js';
 
 export class Booking {
   constructor() {
@@ -24,12 +25,15 @@ export class Booking {
     thisBooking.dom.peopleAmount = document.querySelector(select.booking.peopleAmount);
     /* the same for hoursAmount */
     thisBooking.dom.hoursAmount = document.querySelector(select.booking.hoursAmount);
-  }
+    
+    thisBooking.dom.datePicker = document.querySelector(select.widgets.datePicker.wrapper); //wyszukane we wraperze, tak? czy document?
+}
 
   initWidgets() {
     const thisBooking = this;
     thisBooking.peopleAmount = new AmountWidget(thisBooking.dom.peopleAmount);
     thisBooking.hoursAmount = new AmountWidget(thisBooking.dom.hoursAmount);
+    thisBooking.datePicker = new DatePicker(thisBooking.dom.datePicker);
   }
 }
 export default Booking;
