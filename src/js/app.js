@@ -57,11 +57,9 @@ const app = {
 
   initBooking: function() {
     const thisApp = this;
-    thisApp.bookings = document.querySelector(select.containerOf.booking); //children?
-    for(let booking in thisApp.bookings) {
-      new Booking(booking);
-    }
-    
+
+    const cokolwiek = document.querySelector(select.containerOf.booking);
+    thisApp.bookingWidget = new Booking(cokolwiek);
   }, 
   initMenu: function() {
     const thisApp = this;
