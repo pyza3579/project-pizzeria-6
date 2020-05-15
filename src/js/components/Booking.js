@@ -10,6 +10,7 @@ export class Booking {
     thisBooking.render(xyz);
     thisBooking.initWidgets();
     thisBooking.getData();
+    //thisBooking.selectTable();
     
   }
 
@@ -70,9 +71,10 @@ export class Booking {
   parseData(bookings, eventsCurrent, eventsRepeat){
     const thisBooking = this;
     thisBooking.booked = {};
+    console.log('thisBooking.booked', thisBooking.booked);
 
     for(let item of eventsCurrent){
-      //debugger;
+      
       thisBooking.makeBooked(item.date, item.hour, item.duration, item.table);
     }
     //console.log('thisBooking.booked', thisBooking.booked);
@@ -147,6 +149,11 @@ export class Booking {
       }
 
     }
+  }
+  selectTable(){
+    // const thisBooking = this;
+
+    
   }
   render(booking) {
     const thisBooking = this;
