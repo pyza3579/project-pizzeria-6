@@ -12,6 +12,7 @@ export class Booking {
     thisBooking.getData();
     thisBooking.selectTable();
     
+    
   }
 
   getData(){
@@ -161,17 +162,65 @@ export class Booking {
         let tableId = table.getAttribute(settings.booking.tableIdAttribute); 
         const bookedTable = table.classList.contains(classNames.booking.tableBooked);
         //console.log('bookedTable', bookedTable);
-
+        
         if (!bookedTable) {
+          //debugger;
           table.classList.add(classNames.booking.tableBooked);
-          console.log('rezerwacja', bookedTable);
+          console.log('rezerwacja', tableId);
         } else {
           table.classList.remove(classNames.booking.tableBooked);
-          console.log('koniec rezerwacji', bookedTable);
+          console.log('koniec rezerwacji', tableId);
         }
 
       });
     }
+  }
+
+  sendReservation() {
+    const thisBooking= this;
+    const url = settings.db.url + '/' + settings.db.booking;
+
+    const payload = {
+      address: thisBooking.dom.adress.value, //dodalam wlasciwosc w setting tez, no bo skad inaczej mialby ciagnac info?
+      phone: thisBooking.dom.phone.value,
+      peopleAmount: thisBooking.peopleAmount,
+      hourAmount: thisBooking.hoursAmount,
+      Date: thisBooking.datePicker.value,
+      hour: thisBooking.hourPicker.value,
+      tables: thisBooking.getTable,
+      starters: [],
+    };
+    console.log('payload :', payload );
+
+    for(let starter of thisBooking.dom.starters){
+      if (starter.checked == true){
+        payload.starters.push(starter.value);
+        console.log('starter.value:', starter.value);
+      }
+    }
+
+    for(let table of thisBooking.dom.tables){
+      const bookedTable = table.classList.contains(classNames.booking.tableBooked);
+      if (bookedTable == true){ //nie wiem co dalej tutaj
+        bookedTable.makeBooked = gotTable;
+        console.log('gotTable', gotTable);
+      }
+    }
+    
+    const options = {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(payload),
+    };
+    fetch(url, options)
+      .then(function(response){
+        return response.json();
+      })
+      .then(function(parsedResponse){
+        console.log('parsedResponse', parsedResponse);
+      });
   }
   render(booking) {
     const thisBooking = this;
@@ -192,7 +241,10 @@ export class Booking {
     thisBooking.dom.datePicker = thisBooking.dom.wrapper.querySelector(select.widgets.datePicker.wrapper); //wyszukane we wraperze, tak? czy document?
     thisBooking.dom.hourPicker = thisBooking.dom.wrapper.querySelector(select.widgets.hourPicker.wrapper); 
     thisBooking.dom.tables = thisBooking.dom.wrapper.querySelectorAll(select.booking.tables); 
-    
+    thisBooking.dom.phone = thisBooking.dom.wrapper.querySelector(select.booking.phone); 
+    thisBooking.dom.adress = thisBooking.dom.wrapper.querySelector(select.booking.address); 
+    thisBooking.dom.form = thisBooking.dom.wrapper.querySelector(select.booking.bookingForm);
+    thisBooking.dom.starters = thisBooking.dom.wrapper.querySelectorAll(select.booking.starters);
   }
 
   initWidgets() {
@@ -205,6 +257,11 @@ export class Booking {
     thisBooking.dom.wrapper.addEventListener('updated', function(){
       thisBooking.updateDOM();
     });
+    thisBooking.dom.form.addEventListener('submit', function(){
+      event.preventDefault();
+      thisBooking.sendReservation();
+    });
+    
   }
 }
 export default Booking;
