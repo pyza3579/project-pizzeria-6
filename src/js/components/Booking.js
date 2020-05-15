@@ -10,7 +10,7 @@ export class Booking {
     thisBooking.render(xyz);
     thisBooking.initWidgets();
     thisBooking.getData();
-    //thisBooking.selectTable();
+    thisBooking.selectTable();
     
   }
 
@@ -132,7 +132,7 @@ export class Booking {
     }
 
     for(let table of thisBooking.dom.tables){
-      console.log('thisBooking.dom.tables',thisBooking.dom.tables);
+      //console.log('thisBooking.dom.tables',thisBooking.dom.tables);
       let tableId = table.getAttribute(settings.booking.tableIdAttribute);
       if(!isNaN(tableId)){
         tableId = parseInt(tableId);
@@ -151,9 +151,27 @@ export class Booking {
     }
   }
   selectTable(){
-    // const thisBooking = this;
-
+    const thisBooking = this;
+    thisBooking.date = thisBooking.datePicker.value;
+    thisBooking.hour = utils.hourToNumber(thisBooking.hourPicker.value);
     
+    //find free tables
+    for(let table of thisBooking.dom.tables){
+      table.addEventListener('click', function(){
+        let tableId = table.getAttribute(settings.booking.tableIdAttribute); 
+        const bookedTable = table.classList.contains(classNames.booking.tableBooked);
+        //console.log('bookedTable', bookedTable);
+
+        if (!bookedTable) {
+          table.classList.add(classNames.booking.tableBooked);
+          console.log('rezerwacja', bookedTable);
+        } else {
+          table.classList.remove(classNames.booking.tableBooked);
+          console.log('koniec rezerwacji', bookedTable);
+        }
+
+      });
+    }
   }
   render(booking) {
     const thisBooking = this;
